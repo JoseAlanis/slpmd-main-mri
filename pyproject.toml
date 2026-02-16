@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "glances>=4.5.0.4",
     "pandas>=3.0.0",
     "pandas-stubs~=3.0.0",
 ]
