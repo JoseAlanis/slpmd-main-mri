@@ -4,11 +4,11 @@ set -euo pipefail
 usage() {
   cat <<'EOF'
 Usage:
-  run_heudiconv.sh -b BASE_HOST_PATH -i INPUT_DIR -O OUTPUT_DIR -s SUBJECT -e SESSION [--dry-run]
+  run_heudiconv_single.sh -b BASE_HOST_PATH -i INPUT_DIR -O OUTPUT_DIR -s SUBJECT -e SESSION [--dry-run]
 
 Example:
-  run_heudiconv.sh -b /data -i MS2DP -O MS2DP_conv -s sub-01 -e ses-01
-  run_heudiconv.sh -b /data -i MS2DP -O MS2DP_conv -s sub-01 -e ses-01 --dry-run
+  run_heudiconv_single.sh -b /data -i MS2DP -O MS2DP_conv -s sub-01 -e ses-01
+  run_heudiconv_single.sh -b /data -i MS2DP -O MS2DP_conv -s sub-01 -e ses-01 --dry-run
 EOF
 }
 
