@@ -74,7 +74,7 @@ OUTPUT_CONT="/base/$OUTPUT_DIR"
 cmd=(
   sudo docker run --rm -it
   -v "${BASE_HOST}:/base"
-  nipy/heudiconv:1.3.4
+  nipy/heudiconv:1.3.3
   -d "${INPUT_CONT}/{subject}/{session}/A/*"
   -o "${OUTPUT_CONT}"
   -f convertall
