@@ -64,6 +64,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     p.add_argument("--allow-submission", action="store_true",
                    help="Do NOT pass --no-sub (default behavior is to pass --no-sub).")
+    p.add_argument("--no-verbose-reports", action="store_true",
+                   help="Do NOT pass --verbose-reports (default behavior is to pass --verbose-reports).")
     p.add_argument("--sudo", action="store_true",
                    help="Run docker with sudo (passed through to scripts/run_mriqc.sh).")
     p.add_argument("--dry-run", action="store_true", help="Print commands, do not run.")
@@ -103,6 +105,8 @@ def main() -> int:
         cmd += ["--work-dir", args.work_dir]
     if args.allow_submission:
         cmd += ["--allow-submission"]
+    if args.no_verbose_reports:
+        cmd += ["--no-verbose-reports"]
     if args.sudo:
         cmd += ["--sudo"]
     if args.dry_run:

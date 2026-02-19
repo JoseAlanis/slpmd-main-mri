@@ -20,6 +20,7 @@ Optional:
   --work-dir NAME|PATH            Working dir (relative to base or absolute). Passed as --work-dir
   --image IMAGE                   Docker image (default: nipreps/mriqc:24.0.2)
   --allow-submission              Do NOT pass --no-sub (default is to pass --no-sub)
+  --no-verbose-reports            Do NOT pass --verbose-reports (default is to pass --verbose-reports)
   --sudo                          Run docker with sudo (sudo docker ...)
   --dry-run                       Print the docker command, do not run
   -h, --help                      Show this help
@@ -35,6 +36,7 @@ IMAGE="nipreps/mriqc:24.0.2"
 NPROCS=4
 OMP_NTHREADS=2
 ALLOW_SUBMISSION=0
+VERBOSE_REPORTS=1
 DRY_RUN=0
 USE_SUDO=0
 
@@ -52,6 +54,7 @@ while [[ $# -gt 0 ]]; do
     --nprocs) NPROCS="${2:-}"; shift 2 ;;
     --omp-nthreads) OMP_NTHREADS="${2:-}"; shift 2 ;;
     --allow-submission) ALLOW_SUBMISSION=1; shift 1 ;;
+    --no-verbose-reports) VERBOSE_REPORTS=0; shift 1 ;;
     --sudo) USE_SUDO=1; shift 1 ;;
     --dry-run) DRY_RUN=1; shift 1 ;;
     -s|--subjects)
@@ -179,6 +182,10 @@ fi
 
 if [[ "$ALLOW_SUBMISSION" -eq 0 ]]; then
   cmd+=(--no-sub)
+fi
+
+if [[ "$VERBOSE_REPORTS" -eq 1 ]]; then
+  cmd+=(--verbose-reports)
 fi
 
 if [[ "$DRY_RUN" -eq 1 ]]; then
