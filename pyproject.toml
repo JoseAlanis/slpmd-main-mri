@@ -6,6 +6,9 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "glances>=4.5.0.4",
+    "matplotlib>=3.10.8",
+    "nilearn>=0.13.1",
     "pandas>=3.0.0",
     "pandas-stubs~=3.0.0",
+    "pydeface>=2.0.2",
 ]
