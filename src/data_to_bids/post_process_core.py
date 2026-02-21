@@ -162,6 +162,12 @@ def update_fieldmap_json(
     Expects fieldmap JSON name after renaming:
       {subject}_{ses-id}_fieldmap.json
     """
+    def _b0_identifier_with_session(existing: Optional[str], session_id: str) -> str:
+        suffix = f"_{session_id}"
+        if existing:
+            return existing if existing.endswith(suffix) else f"{existing}{suffix}"
+        return f"{b0_identifier}{suffix}"
+
     for subject in subjects:
         subject_path = os.path.join(base_dir, subject)
         if not os.path.isdir(subject_path):
@@ -180,37 +186,62 @@ def update_fieldmap_json(
             bold_files = sorted(
                 glob.glob(os.path.join(func_dir, "*_bold.nii.gz")))
             intended_for = [
-                "bids::" + os.path.relpath(bold_file, start=base_dir).replace(
+                os.path.relpath(bold_file, start=subject_path).replace(
                     os.sep, "/")
                 for bold_file in bold_files
             ]
 
-            pattern = os.path.join(fmap_dir, f"{subject}_{ses_id}_fieldmap.json")
-            matches = glob.glob(pattern)
-            if not matches:
-                print(f"No fieldmap JSON found in: {fmap_dir} (pattern: {pattern})")
+            fieldmap_pattern = os.path.join(fmap_dir, f"{subject}_{ses_id}_fieldmap.json")
+            magnitude_pattern = os.path.join(fmap_dir, f"{subject}_{ses_id}_magnitude.json")
+            json_paths = []
+            for pattern in (fieldmap_pattern, magnitude_pattern):
+                json_paths.extend(glob.glob(pattern))
+
+            if not json_paths:
+                print(f"No fieldmap or magnitude JSON found in: {fmap_dir}")
                 continue
 
-            fmap_json_path = matches[0]
+            updated_count = 0
+            unchanged_count = 0
+            error_count = 0
 
-            try:
-                with open(fmap_json_path, "r") as f:
-                    fmap_data = json.load(f)
+            for fmap_json_path in json_paths:
+                try:
+                    with open(fmap_json_path, "r") as f:
+                        fmap_data = json.load(f)
 
-                new_data = dict(fmap_data)
-                new_data["IntendedFor"] = intended_for
-                new_data["B0FieldIdentifier"] = b0_identifier
+                    new_data = dict(fmap_data)
+                    new_data["B0FieldIdentifier"] = _b0_identifier_with_session(
+                        new_data.get("B0FieldIdentifier"), ses_id
+                    )
+                    new_data["IntendedFor"] = intended_for
 
-                if new_data == fmap_data:
-                    print(f"No changes needed for: {fmap_json_path}")
-                    continue
+                    if new_data == fmap_data:
+                        print(f"No changes needed for: {fmap_json_path}")
+                        unchanged_count += 1
+                        continue
 
-                if dry_run:
-                    print(f"Would update JSON: {fmap_json_path}")
-                else:
-                    print(f"Updating JSON: {fmap_json_path}")
-                    with open(fmap_json_path, "w") as f:
-                        json.dump(new_data, f, indent=4)
+                    if dry_run:
+                        print(f"Would update JSON: {fmap_json_path}")
+                    else:
+                        print(f"Updating JSON: {fmap_json_path}")
+                        with open(fmap_json_path, "w") as f:
+                            json.dump(new_data, f, indent=4)
 
-            except Exception as e:
-                print(f"Error updating {fmap_json_path}: {e}")
+                    updated_count += 1
+                except Exception as e:
+                    print(f"Error updating {fmap_json_path}: {e}")
+                    error_count += 1
+
+            if dry_run:
+                print(f"Session summary: {subject}/{ses_id}")
+                print(f"  IntendedFor entries: {len(intended_for)}")
+                if intended_for:
+                    print("  IntendedFor:")
+                    for entry in intended_for:
+                        print(f"    {entry}")
+                print(f"  JSON files found: {len(json_paths)}")
+                print(f"  JSON files updated: {updated_count}")
+                print(f"  JSON files unchanged: {unchanged_count}")
+                if error_count:
+                    print(f"  JSON files errored: {error_count}")
